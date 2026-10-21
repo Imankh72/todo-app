@@ -12,7 +12,7 @@ class TaskModel(Base):
     title: Mapped[str] = mapped_column(String(64), nullable=False)
     description: Mapped[str | None] = mapped_column(String(500), nullable=True)
     is_completed: Mapped[bool] = mapped_column(
-        Boolean, default=False, server_default=false(), nullable=False
+        Boolean, server_default=false(), nullable=False
     )
 
     created_at: Mapped[datetime] = mapped_column(
