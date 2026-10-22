@@ -24,12 +24,12 @@ def get_task_or_404(db: Session, task_id: int) -> TaskModel:
 
 
 # Get all tasks or search tasks by title
-@router.get("/", status_code=200)
+@router.get("/")
 def get_tasks(
     q: Annotated[str | None, Query(alias="search", max_length=30)] = None,
-    db: Session = DB_SESSION,
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    db: Session = DB_SESSION,
 ):
 
     query = select(TaskModel).order_by(TaskModel.id).offset(skip).limit(limit)
@@ -39,8 +39,8 @@ def get_tasks(
     return db.scalars(query).all()
 
 
-# Get a task by it's ID
-@router.get("/{task_id}", status_code=200)
+# Get a task by its ID
+@router.get("/{task_id}")
 def get_task(task_id: TaskId, db: Session = DB_SESSION):
     return get_task_or_404(db, task_id)
 
@@ -63,8 +63,8 @@ def create_task(task: BaseTaskSchema, db: Session = DB_SESSION):
     }
 
 
-# Update a task
-@router.put("/{task_id}", status_code=200)
+# Update a task by its ID
+@router.put("/{task_id}")
 def update_task(
     task_id: TaskId,
     updated_task: BaseTaskSchema,
@@ -87,8 +87,8 @@ def update_task(
     }
 
 
-# Delete a task by it's ID
-@router.delete("/{task_id}", status_code=200)
+# Delete a task by its ID
+@router.delete("/{task_id}", status_code=204)
 def delete_task(
     task_id: TaskId,
     db: Session = DB_SESSION,
@@ -97,5 +97,3 @@ def delete_task(
     task = get_task_or_404(db, task_id)
     db.delete(task)
     db.commit()
-
-    return {"message": "Task deleted successfully", "deleted_task": task}
