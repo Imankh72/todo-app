@@ -67,7 +67,7 @@ def create_task(task: BaseTaskSchema, db: Session = DB_SESSION):
 @router.put("/{task_id}")
 def update_task(
     task_id: TaskId,
-    updated_task: BaseTaskSchema,
+    updated_task,
     db: Session = DB_SESSION,
 ):
     task = get_task_or_404(db, task_id)
