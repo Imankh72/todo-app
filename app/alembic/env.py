@@ -7,6 +7,7 @@ from core.database import Base
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 from tasks.models import *
+from users.models import *
 
 # env.py is at <project>/alembic/env.py, .env is at <project>/.env
 env_path = Path(__file__).resolve().parents[2] / ".env"
