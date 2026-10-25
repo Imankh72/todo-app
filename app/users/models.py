@@ -43,3 +43,6 @@ class UserModel(Base):
             )
         except ValueError:
             return False
+
+    def set_password(self, plain_text: str) -> None:
+        self.password = self.hash_password(plain_text)
