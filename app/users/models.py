@@ -2,7 +2,7 @@ from datetime import datetime
 
 import bcrypt
 from core.database import Base
-from sqlalchemy import Boolean, DateTime, Integer, String, func, true
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, func, true
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
@@ -46,3 +46,18 @@ class UserModel(Base):
 
     def set_password(self, plain_text: str) -> None:
         self.password = self.hash_password(plain_text)
+
+
+class TokenModel(Base):
+    __tablename__ = "tokens"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    token: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    user = relationship("UserModel", uselist=False)
