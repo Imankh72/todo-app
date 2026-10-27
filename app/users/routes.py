@@ -1,9 +1,14 @@
+from auth.jwt_auth import (
+    decode_refresh_token,
+    generate_access_token,
+    generate_refresh_token,
+)
 from core.database import get_db
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from users.models import UserModel
-from users.schemas import UserLoginSchema, UserRegisterSchema
+from users.schemas import UserLoginSchema, UserRefreshToken, UserRegisterSchema
 
 DB_SESSION = Depends(get_db)
 
@@ -36,4 +41,18 @@ def login(user: UserLoginSchema, db: Session = DB_SESSION):
         raise HTTPException(status_code=400, detail="User doesn't exist")
     if not logged_user.verify_password(user.password):
         raise HTTPException(status_code=400, detail="Password is wrong")
-    return {}
+
+    access_token = generate_access_token(logged_user.id)
+    refresh_token = generate_refresh_token(logged_user.id)
+    return {
+        "detail": "User logged in",
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+    }
+
+
+@router.post("/refresh_token", status_code=200)
+def refresh_token(credentials: UserRefreshToken, db: Session = DB_SESSION):
+    user_id = decode_refresh_token(credentials.refresh_token)
+    access_token = generate_access_token(user_id)
+    return {"access_token": access_token}
