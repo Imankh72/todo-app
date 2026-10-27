@@ -66,13 +66,19 @@ def create_task(task: BaseTaskSchema, db: Session = DB_SESSION):
 # Update a task by its ID
 @router.put("/{task_id}")
 def update_task(
-    task_id: TaskId,
-    updated_task,
+    task_id: Annotated[int, Path(gt=0)],
+    updated_task: Annotated[BaseTaskSchema, ...],
     db: Session = DB_SESSION,
 ):
-    task = get_task_or_404(db, task_id)
-    for field, value in updated_task.model_dump().items():
-        setattr(task, field, value)
+    task = db.query(TaskModel).filter(TaskModel.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    task.title = updated_task.title
+    task.description = updated_task.description
+    task.is_completed = updated_task.is_completed
+    task.user_id = updated_task.user_id
+
     db.commit()
     db.refresh(task)
 
@@ -83,6 +89,7 @@ def update_task(
             "title": task.title,
             "description": task.description,
             "is_completed": task.is_completed,
+            "user_id": task.user_id,
         },
     }
 
