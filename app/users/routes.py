@@ -15,7 +15,7 @@ DB_SESSION = Depends(get_db)
 router = APIRouter(tags=["users"], prefix="/users")
 
 
-@router.post("/register", status_code=200)
+@router.post("/register", status_code=201)
 def register(new_user: UserRegisterSchema, db: Session = DB_SESSION):
     if (
         db.query(UserModel)
@@ -38,9 +38,9 @@ def login(user: UserLoginSchema, db: Session = DB_SESSION):
         db.query(UserModel).filter(UserModel.username == user.username.lower()).first()
     )
     if not logged_user:
-        raise HTTPException(status_code=400, detail="User doesn't exist")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
     if not logged_user.verify_password(user.password):
-        raise HTTPException(status_code=400, detail="Password is wrong")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
 
     access_token = generate_access_token(logged_user.id)
     refresh_token = generate_refresh_token(logged_user.id)
